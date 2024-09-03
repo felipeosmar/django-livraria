@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  #Node API Backend
+  app:
+    build: ./
+    command: gunicorn app.wsgi:application --bind 0.0.0.0:8000
+    expose:
+      - 8000
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    env_file:
+      - ./.env
+
+
+  #Nginx Reverse Proxy
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - app
+    volumes:
+      - ./nginx/prod/nginx.template:/etc/nginx/conf.d/nginx.template:ro
+      - ./docker_data/certbot_data/www/:/var/www/certbot/:ro
+      - ./docker_data/certbot_data/conf/:/etc/nginx/ssl/:ro
+    environment:
+      NGINX_SERVER_DOMAIN: ${NGINX_SERVER_DOMAIN}
+      NGINX_UPSTREAM_NAME: ${NGINX_UPSTREAM_NAME}
+    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/nginx.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./docker_data/certbot_data/www/:/var/www/certbot/:rw
+      - ./docker_data/certbot_data/conf/:/etc/letsencrypt/:rw
+    depends_on:
+      - nginx
+
+volumes:
+  static_volume:

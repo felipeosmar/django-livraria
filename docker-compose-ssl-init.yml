@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    # depends_on:
+    #   - app
+    restart: always
+    volumes:
+      - ./nginx/ssl-init/nginx.template:/etc/nginx/conf.d/nginx.template:ro
+      - ./docker_data/certbot_data/www/:/var/www/certbot/:ro
+      - ./docker_data/certbot_data/conf/:/etc/nginx/ssl/:ro
+    environment:
+      NGINX_SERVER_DOMAIN: ${NGINX_SERVER_DOMAIN}
+      NGINX_UPSTREAM_NAME: ${NGINX_UPSTREAM_NAME}
+    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/nginx.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./docker_data/certbot_data/www/:/var/www/certbot/:rw
+      - ./docker_data/certbot_data/conf/:/etc/letsencrypt/:rw
+    depends_on:
+      - nginx
