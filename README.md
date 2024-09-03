@@ -26,7 +26,7 @@ poetry install
 
 rodar a primeira vez
 ```bash
-cp .env.example .env
+cp env.template .env
 make runserver
 ```
 

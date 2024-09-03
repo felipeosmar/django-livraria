@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "app"
+name = "senai_testes"
 version = "0.1.0"
 description = ""
 authors = ["Alexandre Klostermann <alexandre@aupi.com.br>"]
