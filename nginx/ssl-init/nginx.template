@@ -1,0 +1,12 @@
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name ${NGINX_SERVER_DOMAIN};
+    server_tokens off;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+}
